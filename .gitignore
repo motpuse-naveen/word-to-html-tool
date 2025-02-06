@@ -18,6 +18,8 @@ server/.env.development
 client/.env.production
 server/.env.production
 
+server/venv/
+
 # Ignore logs
 client/npm-debug.log*
 server/npm-debug.log*
