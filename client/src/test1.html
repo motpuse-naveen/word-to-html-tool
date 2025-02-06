@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word to HTML and PDF</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+</head>
+<body>
+
+  <input type="file" id="file-input" />
+  <div id="html-output"></div>
+  <button id="export-pdf-btn">Export to PDF</button>
+
+  <script>
+    const { jsPDF } = window.jspdf;
+
+    document.getElementById("file-input").addEventListener("change", function (event) {
+      const file = event.target.files[0];
+
+      if (file && file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const arrayBuffer = e.target.result;
+
+          mammoth.extractRawText({ arrayBuffer: arrayBuffer })
+            .then(function (result) {
+              document.getElementById("html-output").innerHTML = result.value;
+            })
+            .catch(function (err) {
+              console.error("Error converting Word to HTML:", err);
+            });
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    });
+
+    document.getElementById("export-pdf-btn").addEventListener("click", function () {
+      const doc = new jsPDF();
+      const htmlContent = document.getElementById("html-output").innerHTML;
+
+      doc.html(htmlContent, {
+        callback: function (doc) {
+          doc.save("output.pdf");
+        },
+        margin: [10, 10, 10, 10],
+        x: 10,
+        y: 10,
+      });
+    });
+  </script>
+
+</body>
+</html>
