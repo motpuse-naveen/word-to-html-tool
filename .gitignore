@@ -1,0 +1,45 @@
+# Ignore node_modules in both client and server
+client/node_modules/
+server/node_modules/
+
+# Ignore build and dist folders for both client and server
+client/build/
+client/dist/
+server/build/
+server/dist/
+
+# Ignore environment files for both client and server
+client/.env
+server/.env
+client/.env.local
+server/.env.local
+client/.env.development
+server/.env.development
+client/.env.production
+server/.env.production
+
+# Ignore logs
+client/npm-debug.log*
+server/npm-debug.log*
+
+# Ignore lock files (if you're not committing them)
+client/package-lock.json
+server/package-lock.json
+client/yarn.lock
+server/yarn.lock
+client/pnpm-lock.yaml
+server/pnpm-lock.yaml
+
+# Ignore coverage folder if running tests
+client/coverage/
+server/coverage/
+
+# Ignore editor files
+client/.vscode/
+server/.vscode/
+client/.idea/
+server/.idea/
+
+# Ignore other unnecessary files
+client/.DS_Store
+server/.DS_Store
