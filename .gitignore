@@ -45,3 +45,6 @@ server/.idea/
 # Ignore other unnecessary files
 client/.DS_Store
 server/.DS_Store
+/docs/media
+/docs/sofficefiles
+/docs

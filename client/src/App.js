@@ -3,11 +3,13 @@ import { useDropzone } from "react-dropzone";
 
 export default function WordToHtml() {
   const [html, setHtml] = useState("");
+  const [htmlFileUrl, setHtmlFileUrl] = useState("");
   const [pdfUrl, setPdfUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fileUploaded, setFileUploaded] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [useLibreOffice, setUseLibreOffice] = useState(false);
 
   const onDrop = async (acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -21,15 +23,16 @@ export default function WordToHtml() {
       setError(null);
       setFileUploaded(false);
 
-      const response = await fetch("http://localhost:8000/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const endpoint = useLibreOffice
+        ? "http://localhost:5000/convert-word-to-html-libreoffice"
+        : "http://localhost:8000/upload";
 
+      const response = await fetch(endpoint, { method: "POST", body: formData });
       if (!response.ok) throw new Error("Failed to convert Word to HTML");
 
       const data = await response.json();
-      setHtml(data.html);
+      setHtmlFileUrl(data.html_file || "");
+      setHtml(data.html || "");
       setFileUploaded(true);
     } catch (err) {
       setError(err.message);
@@ -100,19 +103,36 @@ export default function WordToHtml() {
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
+      <div>
+        <label>
+          Use LibreOffice for HTML conversion
+          <input
+            type="checkbox"
+            checked={useLibreOffice}
+            onChange={() => setUseLibreOffice(!useLibreOffice)}
+          />
+        </label>
+      </div>
+
       {html && (
         <div>
-          <div id="html-from-word" dangerouslySetInnerHTML={{ __html: html }} className="border p-4" />
-          
-          <button
-            onClick={exportToPDF}
-            className="bg-blue-500 text-white p-2 mt-2"
-            disabled={loading || !fileUploaded}
-          >
-            Convert HTML to PDF
-          </button>
+          {htmlFileUrl ? (
+            <iframe src={htmlFileUrl} title="Converted HTML" width="800px" height="500px"></iframe>
+          ) : (
+            <>
+              <div id="html-from-word" dangerouslySetInnerHTML={{ __html: html }} className="border p-4" />
+              <button
+                onClick={exportToPDF}
+                className="bg-blue-500 text-white p-2 mt-2"
+                disabled={loading || !fileUploaded}
+              >
+                Convert HTML to PDF
+              </button>
+            </>
+          )}
         </div>
       )}
+
 
       {selectedFile && (
         <button
@@ -125,7 +145,12 @@ export default function WordToHtml() {
       )}
 
       {pdfUrl && (
-        <a href={pdfUrl} download="output.pdf" className="mt-2 inline-block bg-green-500 text-white p-2">
+        <a
+          href={pdfUrl}
+          download="output.pdf"
+          className="mt-2 inline-block bg-green-500 text-white p-2"
+          onClick={() => URL.revokeObjectURL(pdfUrl)}
+        >
           Download PDF
         </a>
       )}
